@@ -1,0 +1,18 @@
+[
+  {
+    "id": "1765288762100",
+    "facility-name": "ALB",
+    "facility-type": "Tower",
+    "facility-location": "ny",
+    "daily-operations": "10",
+    "operational-hours": "24/7",
+    "peak-hours": "2",
+    "total-staff": "3",
+    "certified-controllers": "3",
+    "training-program": "Active",
+    "primary-system": "3",
+    "backup-systems": "Yes - Full",
+    "last-system-upgrade": "2020-03-02",
+    "submittedAt": "2025-12-09T13:59:22.100Z"
+  }
+]
