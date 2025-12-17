@@ -18,11 +18,13 @@ This application provides a streamlined interface for facilities to submit detai
 ## Technology Stack
 
 ### Frontend
+
 - **React 18** - UI framework
 - **Vite 6** - Build tool and dev server
 - **Vanilla CSS** - Custom styling with CSS variables
 
 ### Backend
+
 - **Node.js** - Runtime environment
 - **Express.js** - Web server framework
 - **File System (fs/promises)** - JSON data storage
@@ -61,12 +63,14 @@ node-form/
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd node-form
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
@@ -76,15 +80,19 @@ npm install
 The application requires both frontend and backend servers to be running.
 
 **Terminal 1 - Backend Server:**
+
 ```bash
 npm run server
 ```
+
 The server will start on `http://localhost:3000`
 
 **Terminal 2 - Frontend Dev Server:**
+
 ```bash
 npm run dev
 ```
+
 The frontend will automatically open in your browser (default: `http://localhost:5173`)
 
 ### Building for Production
@@ -351,21 +359,25 @@ pm2 status
 ## Form Sections
 
 ### 1. Facility Information
+
 - Facility Name
 - Facility Type (Tower, TRACON, ARTCC, Combined)
 - Facility Location
 
 ### 2. Operations
+
 - Average Daily Operations
 - Operational Hours (24/7, Daytime Only, Variable Schedule)
 - Peak Operation Hours
 
 ### 3. Staffing
+
 - Total Staff Count
 - Certified Controllers
 - Training Program Status
 
 ### 4. Equipment & Systems
+
 - Primary ATC System
 - Backup Systems Available
 - Last System Upgrade Date
@@ -373,9 +385,11 @@ pm2 status
 ## API Endpoints
 
 ### POST `/api/submit`
+
 Submit a new facility questionnaire.
 
 **Request Body:**
+
 ```json
 {
   "facility-name": "Example Tower",
@@ -394,6 +408,7 @@ Submit a new facility questionnaire.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -403,9 +418,11 @@ Submit a new facility questionnaire.
 ```
 
 ### GET `/api/submissions`
+
 Retrieve all submitted questionnaires.
 
 **Response:**
+
 ```json
 [
   {
@@ -418,9 +435,11 @@ Retrieve all submitted questionnaires.
 ```
 
 ### GET `/api/health`
+
 Health check endpoint.
 
 **Response:**
+
 ```json
 {
   "status": "ok"
@@ -430,6 +449,7 @@ Health check endpoint.
 ## Data Storage
 
 Submissions are stored in `facility-form-data/submissions.json` as an array of objects. Each submission includes:
+
 - Unique ID (timestamp-based)
 - All form field responses
 - Submission timestamp (ISO 8601 format)
@@ -476,21 +496,24 @@ Update `server/index.js` to restrict CORS to your domain:
 ```javascript
 // Replace the existing CORS middleware with:
 app.use((req, res, next) => {
-  const allowedOrigins = ['https://your-domain.com', 'https://www.your-domain.com']
-  const origin = req.headers.origin
+  const allowedOrigins = [
+    'https://your-domain.com',
+    'https://www.your-domain.com',
+  ];
+  const origin = req.headers.origin;
 
   if (allowedOrigins.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin)
+    res.header('Access-Control-Allow-Origin', origin);
   }
 
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-  res.header('Access-Control-Allow-Headers', 'Content-Type')
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
-    return res.sendStatus(200)
+    return res.sendStatus(200);
   }
-  next()
-})
+  next();
+});
 ```
 
 ### Additional Security Measures
@@ -525,14 +548,18 @@ app.use((req, res, next) => {
 ## Troubleshooting
 
 ### Port Already in Use
+
 If port 3000 or 5173 is already in use, modify the ports in:
+
 - `server/index.js` (line 10) for backend
 - `vite.config.js` for frontend
 
 ### CORS Errors
+
 Ensure the backend server is running before starting the frontend. Check that the API URL in `src/components/Form.jsx` matches your backend URL.
 
 ### Data Not Saving
+
 Verify the server has write permissions for the project directory to create the `facility-form-data` folder.
 
 ## Support
@@ -547,3 +574,82 @@ For questions or issues, contact the development team or submit an issue in the 
 
 **Last Updated**: December 2025
 **Version**: 1.0.0
+
+apache config
+
+● I'll help you set up Apache as a reverse proxy for your Node server.
+
+Step 1: Enable required Apache modules
+
+● Here's how to set up Apache as a reverse proxy:
+
+Step 1: Enable Apache proxy modules
+
+Run these commands on your server:
+sudo a2enmod proxy
+sudo a2enmod proxy_http
+sudo a2enmod rewrite
+sudo systemctl restart apache2
+
+Step 2: Create Apache virtual host configuration
+
+Create a new config file (replace yourdomain.com with your actual domain):
+sudo nano /etc/apache2/sites-available/yoursite.conf
+
+Add this configuration:
+<VirtualHost \*:80>
+ServerName yourdomain.com
+ServerAlias www.yourdomain.com
+
+      # Document root for your frontend build
+      DocumentRoot /var/www/yourdomain.com
+
+      <Directory /var/www/yourdomain.com>
+          Options -Indexes +FollowSymLinks
+          AllowOverride All
+          Require all granted
+
+          # Handle React routing
+          RewriteEngine On
+          RewriteBase /
+          RewriteRule ^index\.html$ - [L]
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteRule . /index.html [L]
+      </Directory>
+
+      # Proxy API requests to Node.js backend
+      ProxyPreserveHost On
+      ProxyPass /api http://localhost:3000/api
+      ProxyPassReverse /api http://localhost:3000/api
+
+      ErrorLog ${APACHE_LOG_DIR}/yoursite-error.log
+      CustomLog ${APACHE_LOG_DIR}/yoursite-access.log combined
+
+  </VirtualHost>
+
+Step 3: Enable the site and restart Apache
+sudo a2ensite yoursite.conf
+sudo systemctl restart apache2
+
+Step 4: Build and deploy your frontend
+
+Build your React app:
+npm run build
+
+Copy the build to the document root:
+sudo mkdir -p /var/www/yourdomain.com
+sudo cp -r dist/\* /var/www/yourdomain.com/
+
+Step 5: Update your code
+
+Now update your Form.jsx to use a relative URL (since Apache will proxy /api to your Node server):
+
+Change line 59 to:
+const response = await fetch('/api/submit', {
+
+This way:
+
+- Users access http://yourdomain.com (port 80, no port needed)
+- Apache serves your React frontend
+- API calls to /api/submit are proxied to localhost:3000/api/submit

@@ -8,7 +8,7 @@ const __dirname = dirname(__filename)
 
 const app = express()
 const PORT = 3000
-const DATA_DIR = join(__dirname, '../facility-form-data')
+const DATA_DIR = '/var/www/facility-form-data'
 const SUBMISSIONS_FILE = join(DATA_DIR, 'submissions.json')
 
 app.use(express.json())
